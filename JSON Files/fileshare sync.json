@@ -1,0 +1,212 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "storageSyncServiceName": {
+            "type": "String"
+        },
+        "location": {
+            "type": "String"
+        },
+        "tags": {
+            "type": "Object",
+            "metadata": "The map of key-value pairs used to tag the resource"
+        },
+        "incomingTrafficPolicy": {
+            "type": "String"
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.StorageSync/storageSyncServices",
+            "apiVersion": "2022-09-01",
+            "name": "[parameters('storageSyncServiceName')]",
+            "location": "[parameters('location')]",
+            "tags": "[parameters('tags')]",
+            "properties": {
+                "incomingTrafficPolicy": "[parameters('incomingTrafficPolicy')]"
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2018-05-01",
+            "name": "file-sync-endpoint-t_191a1aec-b780-4302-bcc1-455f80dd902b",
+            "dependsOn": [
+                "Microsoft.StorageSync/storageSyncServices/techee_file_share_sync"
+            ],
+            "properties": {
+                "expressionEvaluationOptions": {
+                    "scope": "inner"
+                },
+                "mode": "Incremental",
+                "parameters": {
+                    "location": {
+                        "value": "eastus"
+                    },
+                    "privateEndpointName": {
+                        "value": "file-sync-endpoint-techee"
+                    },
+                    "privateLinkServiceId": {
+                        "value": "/subscriptions/11347f83-6e99-4b6b-a34e-51a9dc85592b/resourcegroups/az104-classes/providers/Microsoft.StorageSync/storageSyncServices/techee_file_share_sync"
+                    },
+                    "groupId": {
+                        "value": "Afs"
+                    },
+                    "subnetId": {
+                        "value": "/subscriptions/11347f83-6e99-4b6b-a34e-51a9dc85592b/resourceGroups/az104-rg7/providers/Microsoft.Network/virtualNetworks/vnet1/subnets/default"
+                    },
+                    "tags": {
+                        "value": {
+                            "Class Name": "Azure 104"
+                        }
+                    }
+                },
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "resources": [
+                        {
+                            "location": "[parameters('location')]",
+                            "name": "[parameters('privateEndpointName')]",
+                            "type": "Microsoft.Network/privateEndpoints",
+                            "apiVersion": "2020-03-01",
+                            "properties": {
+                                "subnet": {
+                                    "id": "[parameters('subnetId')]"
+                                },
+                                "privateLinkServiceConnections": [
+                                    {
+                                        "name": "[parameters('privateEndpointName')]",
+                                        "properties": {
+                                            "privateLinkServiceId": "[parameters('privateLinkServiceId')]",
+                                            "groupIds": [
+                                                "[parameters('groupId')]"
+                                            ]
+                                        }
+                                    }
+                                ]
+                            },
+                            "tags": "[parameters('tags')]"
+                        }
+                    ],
+                    "parameters": {
+                        "location": {
+                            "type": "string"
+                        },
+                        "privateEndpointName": {
+                            "type": "string"
+                        },
+                        "privateLinkServiceId": {
+                            "type": "string"
+                        },
+                        "groupId": {
+                            "type": "string"
+                        },
+                        "subnetId": {
+                            "type": "string"
+                        },
+                        "tags": {
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "subscriptionId": "11347f83-6e99-4b6b-a34e-51a9dc85592b",
+            "resourceGroup": "az104-classes"
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2018-05-01",
+            "name": "PrivateDnsZone-191a1aecb7804302bcc1455f80dd902c",
+            "dependsOn": [
+                "file-sync-endpoint-t_191a1aec-b780-4302-bcc1-455f80dd902b"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "resources": [
+                        {
+                            "type": "Microsoft.Network/privateDnsZones",
+                            "apiVersion": "2018-09-01",
+                            "name": "privatelink.afs.azure.net",
+                            "location": "global",
+                            "tags": {},
+                            "properties": {}
+                        }
+                    ]
+                }
+            },
+            "subscriptionId": "11347f83-6e99-4b6b-a34e-51a9dc85592b",
+            "resourceGroup": "az104-rg7"
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2018-05-01",
+            "name": "VirtualNetworkLink-191a1aecb7804302bcc1455f80dd902c",
+            "dependsOn": [
+                "PrivateDnsZone-191a1aecb7804302bcc1455f80dd902c"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "resources": [
+                        {
+                            "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+                            "apiVersion": "2018-09-01",
+                            "name": "[concat(string('privatelink.afs.azure.net'), '/', uniqueString(string('/subscriptions/11347f83-6e99-4b6b-a34e-51a9dc85592b/resourceGroups/az104-rg7/providers/Microsoft.Network/virtualNetworks/vnet1')))]",
+                            "location": "global",
+                            "properties": {
+                                "virtualNetwork": {
+                                    "id": "/subscriptions/11347f83-6e99-4b6b-a34e-51a9dc85592b/resourceGroups/az104-rg7/providers/Microsoft.Network/virtualNetworks/vnet1"
+                                },
+                                "registrationEnabled": false
+                            }
+                        }
+                    ]
+                }
+            },
+            "subscriptionId": "11347f83-6e99-4b6b-a34e-51a9dc85592b",
+            "resourceGroup": "az104-rg7"
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2018-05-01",
+            "name": "DnsZoneGroup-191a1aecb7804302bcc1455f80dd902c",
+            "dependsOn": [
+                "file-sync-endpoint-t_191a1aec-b780-4302-bcc1-455f80dd902b",
+                "PrivateDnsZone-191a1aecb7804302bcc1455f80dd902c"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "template": {
+                    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+                    "contentVersion": "1.0.0.0",
+                    "resources": [
+                        {
+                            "type": "Microsoft.Network/privateEndpoints/privateDnsZoneGroups",
+                            "apiVersion": "2020-03-01",
+                            "name": "file-sync-endpoint-techee/default",
+                            "location": "eastus",
+                            "properties": {
+                                "privateDnsZoneConfigs": [
+                                    {
+                                        "name": "privatelink-afs-azure-net",
+                                        "properties": {
+                                            "privateDnsZoneId": "/subscriptions/11347f83-6e99-4b6b-a34e-51a9dc85592b/resourceGroups/az104-rg7/providers/Microsoft.Network/privateDnsZones/privatelink.afs.azure.net"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            },
+            "subscriptionId": "11347f83-6e99-4b6b-a34e-51a9dc85592b",
+            "resourceGroup": "az104-classes"
+        }
+    ]
+}

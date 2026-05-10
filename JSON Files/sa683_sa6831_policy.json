@@ -1,0 +1,18 @@
+{
+  "id": "/subscriptions/11347f83-6e99-4b6b-a34e-51a9dc85592b/resourceGroups/az104-classes/providers/Microsoft.Storage/storageAccounts/sa6831/objectReplicationPolicies/2d2c1203-1575-4643-a704-120dd6d79986",
+  "name": "2d2c1203-1575-4643-a704-120dd6d79986",
+  "type": "Microsoft.Storage/storageAccounts/objectReplicationPolicies",
+  "properties": {
+    "policyId": "2d2c1203-1575-4643-a704-120dd6d79986",
+    "sourceAccount": "/subscriptions/11347f83-6e99-4b6b-a34e-51a9dc85592b/resourceGroups/az104-classes/providers/Microsoft.Storage/storageAccounts/sa683",
+    "destinationAccount": "/subscriptions/11347f83-6e99-4b6b-a34e-51a9dc85592b/resourceGroups/az104-classes/providers/Microsoft.Storage/storageAccounts/sa6831",
+    "rules": [
+      {
+        "ruleId": "d7dc9057-c083-4502-9d9e-0e9929a52fea",
+        "sourceContainer": "copyhere-azcopy",
+        "destinationContainer": "sales-team-container",
+        "filters": {}
+      }
+    ]
+  }
+}
