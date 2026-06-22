@@ -1,3 +1,4 @@
+## Hosting and application deployment options
 Azure offers a diverse set of code hosting and application deployment options categorized by the level of control you need over the underlying infrastructure. 
 
 1\. Code-First / Fully Managed (PaaS) 
@@ -43,11 +44,11 @@ If you meant hosting the **source code repository** itself (rather than the runn
 1. [**GitHub**](https://github.com/): Owned by Microsoft; offers industry-standard Git repositories with continuous delivery pipelines via GitHub Actions.  
 2. **Azure DevOps (Azure Repos)**: An enterprise project lifecycle ecosystem offering Git hosting, boards, and [Azure Pipelines](https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-static-website).  
  
-
+---
+## Hosting Plans
 
 Each service has unique **hosting plans structured** around the amount of traffic, memory, scaling speed, and cost control you need. 
 
----
 
 **1\. Azure App Service Plans**
 
